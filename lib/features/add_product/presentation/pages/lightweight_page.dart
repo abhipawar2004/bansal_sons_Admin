@@ -51,26 +51,41 @@ class _LightweightPageState extends State<LightweightPage> {
     }
   }
 
-  void _loadLightCategories() async {
-    try {
-      final categories = await LightCategoriesService().fetchLightCategories();
-      setState(() {
-        _lightCategories = categories;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      print('Error fetching light categories: $e');
-    }
+  Future<void> _loadLightCategories() async {
+  try {
+    final categories = await LightCategoriesService().fetchLightCategories();
+    setState(() {
+      _lightCategories = categories;
+      _selectedCategory = categories.isNotEmpty ? categories.first : null;
+      _isLoading = false;
+    });
+  } catch (e) {
+    setState(() {
+      _isLoading = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error fetching categories: $e')),
+    );
   }
-
-  Future<void> _submitProduct() async {
+}
+Future<void> _submitProduct() async {
   if (_formKey.currentState!.validate()) {
     _formKey.currentState!.save();
 
-    final apiUrl = 'https://api.gehnamall.com/admin/upload/Products?category=$_selectedCategory?&wholeseller=BANSAL?&lightWeight=light';
+    // Ensure that _selectedCategory is not null and that categoryCode exists
+    if (_selectedCategory == null || _selectedCategory!['categoryCode'] == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select a valid category')),
+      );
+      return;
+    }
+
+    // Get the categoryCode from _selectedCategory
+    final categoryCode = _selectedCategory!['categoryCode'];
+
+    final apiUrl =
+        'https://api.gehnamall.com/admin/upload/Products?category=$categoryCode&wholeseller=Bansal&lightWeight=light';
+
     final loginState = context.read<LoginBloc>().state;
     if (loginState is LoginSuccess) {
       final String token = loginState.login.token;
@@ -91,7 +106,8 @@ class _LightweightPageState extends State<LightweightPage> {
         // Add images
         if (_imageFiles != null && _imageFiles!.isNotEmpty) {
           for (var image in _imageFiles!) {
-            request.files.add(await http.MultipartFile.fromPath('images', image.path));
+            request.files
+                .add(await http.MultipartFile.fromPath('images', image.path));
           }
         }
 
@@ -100,20 +116,23 @@ class _LightweightPageState extends State<LightweightPage> {
         final responseBody = await response.stream.bytesToString();
 
         if (response.statusCode == 200) {
-
           // Parse response if it's in JSON format
           final responseData = jsonDecode(responseBody);
-          final serverMessage = responseData['message'] ?? 'Product added successfully';
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(serverMessage)));
+          final serverMessage =
+              responseData['message'] ?? 'Product added successfully';
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(serverMessage)));
         } else {
           // Parse error response if it's in JSON format
           final errorData = jsonDecode(responseBody);
           final errorMessage = errorData['error'] ?? 'Failed to add product';
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(errorMessage)));
         }
       } catch (e) {
         print('Error submitting product: $e');
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -145,8 +164,8 @@ class _LightweightPageState extends State<LightweightPage> {
                           .map((category) =>
                               DropdownMenuItem<Map<String, dynamic>>(
                                 value: category,
-                                child: Text(
-                                    category['categoryName'] ?? 'Unknown'),
+                                child:
+                                    Text(category['categoryName'] ?? 'Unknown'),
                               ))
                           .toList(),
                       onChanged: (value) {
@@ -154,7 +173,10 @@ class _LightweightPageState extends State<LightweightPage> {
                           _selectedCategory = value;
                         });
                       },
+                      validator: (value) =>
+                          value == null ? 'Please select a category' : null,
                     ),
+
               const SizedBox(height: 16),
 
               // Product Name
