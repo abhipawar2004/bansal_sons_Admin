@@ -16,11 +16,14 @@ class LoginApi {
         },
       );
       if (response.statusCode == 200) {
-        return Login.fromJson(response.data);
+        final login = Login.fromJson(response.data);
+        print('Login successful! Token: ${login.token}');
+        return login;
       } else {
         throw Exception('Failed to login');
       }
     } catch (e) {
+      print('Error during login: $e');
       rethrow;
     }
   }

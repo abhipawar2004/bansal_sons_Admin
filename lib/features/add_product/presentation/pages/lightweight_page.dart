@@ -70,20 +70,10 @@ class _LightweightPageState extends State<LightweightPage> {
   if (_formKey.currentState!.validate()) {
     _formKey.currentState!.save();
 
-    final apiUrl = 'http://3.110.34.172:8080/admin/upload/Products?category=${_selectedCategory?['categoryId'] ?? ''}&subCategory=123&wholeseller=456&lightWeight=light';
+    final apiUrl = 'https://api.gehnamall.com/admin/upload/Products?category=$_selectedCategory?&wholeseller=BANSAL?&lightWeight=light';
     final loginState = context.read<LoginBloc>().state;
     if (loginState is LoginSuccess) {
       final String token = loginState.login.token;
-
-      // Print out the data to be sent
-      print("Submitting product with the following details:");
-      print("Product Name: $_productName");
-      print("Description: $_description");
-      print("Wastage: $_wastage");
-      print("Weight: $_weight");
-      print("Karat: $_selectedKarat");
-      print("Selected Category: ${_selectedCategory?['categoryId']}");
-      print("Token: $token");
 
       try {
         final request = http.MultipartRequest('POST', Uri.parse(apiUrl));
@@ -110,6 +100,7 @@ class _LightweightPageState extends State<LightweightPage> {
         final responseBody = await response.stream.bytesToString();
 
         if (response.statusCode == 200) {
+
           // Parse response if it's in JSON format
           final responseData = jsonDecode(responseBody);
           final serverMessage = responseData['message'] ?? 'Product added successfully';

@@ -157,34 +157,35 @@ class HomePage extends StatelessWidget {
                   );
                 }
               } 
-              _bottomSheetController = showBottomSheet(
+              else if(index==4)
+             { _bottomSheetController = showBottomSheet(
                   context: context,
                   builder: (context) {
                     return Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         ListTile(
-                          leading: const Icon(Icons.add),
+                          leading: const Icon(Icons.branding_watermark),
                           title: const Text('Banner & Testinomial'),
                           onTap: () {
                             Navigator.pop(context); // Close the bottom sheet
                             Navigator.pushNamed(context, '/others');
-                            print('Add selected');
+                           
                           },
                         ),
                         ListTile(
-                          leading: const Icon(Icons.attach_file),
-                          title: const Text('Lightweight'),
+                          leading: const Icon(Icons.price_change),
+                          title: const Text('Prices'),
                           onTap: () {
                             Navigator.pop(context); // Close the bottom sheet
-                            Navigator.pushNamed(context, '/light_weight');
-                            print('Lightweight selected');
+                            Navigator.pushNamed(context, '/prices');
+                           
                           },
                         ),
                       ],
                     );
                   },
-                );
+                );}
             },
           );
         },

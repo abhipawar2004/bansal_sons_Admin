@@ -184,7 +184,7 @@ class _AddProductPageState extends State<AddProductPage> {
       print("Login successful! Identity: $identity, Token: $token");
       
       final String url =
-          'http://3.110.34.172:8080/admin/upload/Products?category=$categoryCode&subCategory=$subCategoryCode&wholeseller=$identity';
+          'https://api.gehnamall.com/admin/upload/Products?category=$categoryCode&subCategory=$subCategoryCode&wholeseller=$identity';;
       print("URL for product upload: $url");
       try {
         List<MultipartFile> imageFiles = await Future.wait(_selectedImages.map(

@@ -9,6 +9,7 @@ import 'package:gehnaorg/features/add_product/presentation/pages/home_page.dart'
 import 'package:gehnaorg/features/add_product/presentation/pages/lightweight_page.dart';
 import 'package:gehnaorg/features/add_product/presentation/pages/login_page.dart';
 import 'package:gehnaorg/features/add_product/presentation/pages/other_page.dart';
+import 'package:gehnaorg/features/add_product/presentation/pages/prices_page.dart';
 import 'package:gehnaorg/features/add_product/presentation/pages/profile_page.dart';
 
 import 'app/di_container.dart'; // Dependency Injection
@@ -62,8 +63,9 @@ class MyApp extends StatelessWidget {
               '/home': (context) =>  HomePage(),
               '/profile': (context) => const ProfilePage(),
               '/others':(context) => const Others(),
-              '/light_weight':(context) =>const LightweightPage()
-              
+              '/light_weight':(context) =>const LightweightPage(),
+              '/prices':(context) =>const PricesPage(),
+
               
             },
           );
