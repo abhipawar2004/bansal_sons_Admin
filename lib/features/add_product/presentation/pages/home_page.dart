@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gehnaorg/features/add_product/presentation/pages/user_info.dart';
 
 import '../bloc/login_bloc.dart';
 import 'profile_page.dart';
@@ -156,9 +157,8 @@ class HomePage extends StatelessWidget {
                     ),
                   );
                 }
-              } 
-              else if(index==4)
-             { _bottomSheetController = showBottomSheet(
+              } else if (index == 4) {
+                _bottomSheetController = showBottomSheet(
                   context: context,
                   builder: (context) {
                     return Column(
@@ -170,7 +170,6 @@ class HomePage extends StatelessWidget {
                           onTap: () {
                             Navigator.pop(context); // Close the bottom sheet
                             Navigator.pushNamed(context, '/others');
-                           
                           },
                         ),
                         ListTile(
@@ -179,13 +178,20 @@ class HomePage extends StatelessWidget {
                           onTap: () {
                             Navigator.pop(context); // Close the bottom sheet
                             Navigator.pushNamed(context, '/prices');
-                           
                           },
                         ),
                       ],
                     );
                   },
-                );}
+                );
+              } else if (index == 2) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => UserInfo(),
+                  ),
+                );
+              }
             },
           );
         },
