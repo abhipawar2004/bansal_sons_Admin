@@ -174,7 +174,7 @@ class _AddProductPageState extends State<AddProductPage> {
   final dio = Dio();
   final String categoryCode = _selectedCategory!.categoryCode.toString();
   final String? subCategoryCode =
-      _selectedSubCategory?.subcategoryCode?.toString();
+      _selectedSubCategory?.subcategoryCode.toString();
 
   final loginState = context.read<LoginBloc>().state;
   if (loginState is LoginSuccess) {
