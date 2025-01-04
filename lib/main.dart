@@ -62,7 +62,7 @@ class MyApp extends StatelessWidget {
               '/add_product': (context) => const AddProductPage(),
               '/home': (context) =>  HomePage(),
               '/profile': (context) => const ProfilePage(),
-              '/others':(context) => const Others(),
+              '/others':(context) =>  BannerAndTestimonialPage(),
               '/light_weight':(context) =>const LightweightPage(),
               '/prices':(context) =>const PricesPage(),
 

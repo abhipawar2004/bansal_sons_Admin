@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -150,126 +149,127 @@ class _AddProductPageState extends State<AddProductPage> {
   }
 
   Future<void> _submitProduct() async {
-    print("Submitting product...");
-    if (!_formKey.currentState!.validate()) {
-      print("Form validation failed.");
-      return;
-    }
+  print("Submitting product...");
+  if (!_formKey.currentState!.validate()) {
+    print("Form validation failed.");
+    return;
+  }
 
-    if (_selectedImages.isEmpty || _selectedImages.length > 7) {
-      print("Invalid image selection.");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Select between 1 and 7 images.')),
-      );
-      return;
-    }
+  if (_selectedImages.isEmpty || _selectedImages.length > 7) {
+    print("Invalid image selection.");
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Select between 1 and 7 images.')),
+    );
+    return;
+  }
 
-    if (_selectedCategory == null || _selectedSubCategory == null) {
-      print("Category or subcategory not selected.");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Category and Subcategory are required!')),
-      );
-      return;
-    }
+  if (_selectedCategory == null) {
+    print("Category not selected.");
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Category is required!')),
+    );
+    return;
+  }
 
-    final dio = Dio();
-    final String categoryCode = _selectedCategory!.categoryCode.toString();
-    final String subCategoryCode =
-        _selectedSubCategory!.subcategoryCode.toString();
+  final dio = Dio();
+  final String categoryCode = _selectedCategory!.categoryCode.toString();
+  final String? subCategoryCode =
+      _selectedSubCategory?.subcategoryCode?.toString();
 
-    final loginState = context.read<LoginBloc>().state;
-    if (loginState is LoginSuccess) {
-      final String identity = loginState.login.identity;
-      final String token = loginState.login.token;
-      print("Login successful! Identity: $identity, Token: $token");
-      
-      final String url =
-          'https://api.gehnamall.com/admin/upload/Products?category=$categoryCode&subCategory=$subCategoryCode&wholeseller=$identity';;
-      print("URL for product upload: $url");
-      try {
-        List<MultipartFile> imageFiles = await Future.wait(_selectedImages.map(
-          (XFile image) async {
-            final bytes = await image.readAsBytes();
-            return MultipartFile.fromBytes(
-              bytes,
-              filename: image.name,
-              contentType: DioMediaType.parse('image/jpeg'),
-            );
-          },
-        ));
+  final loginState = context.read<LoginBloc>().state;
+  if (loginState is LoginSuccess) {
+    final String identity = loginState.login.identity;
+    final String token = loginState.login.token;
+    print("Login successful! Identity: $identity, Token: $token");
 
-        print("Images ready, preparing form data...");
-        final formData = FormData.fromMap({
-          'productName': _productNameController.text,
-          'description': _descriptionController.text,
-          'wastage': _wastageController.text,
-          'weight': _weightController.text,
-          'karat': _selectedKarat,
-          'genderCode': _selectedGender == 1 ? '1' : '2',
-          'images': imageFiles,
-          'gifting': _selectedGifting, // Add gifting selection
+    // Dynamically generate the URL based on subcategory presence
+    final String url = subCategoryCode == null || subCategoryCode.isEmpty
+        ? 'https://api.gehnamall.com/admin/upload/Products?category=$categoryCode&wholeseller=$identity'
+        : 'https://api.gehnamall.com/admin/upload/Products?category=$categoryCode&subCategory=$subCategoryCode&wholeseller=$identity';
+    
+    print("URL for product upload: $url");
+
+    try {
+      List<MultipartFile> imageFiles = await Future.wait(_selectedImages.map(
+        (XFile image) async {
+          final bytes = await image.readAsBytes();
+          return MultipartFile.fromBytes(
+            bytes,
+            filename: image.name,
+            contentType: DioMediaType.parse('image/jpeg'),
+          );
+        },
+      ));
+
+      final formData = FormData.fromMap({
+        'productName': _productNameController.text,
+        'description': _descriptionController.text,
+        'wastage': _wastageController.text,
+        'weight': _weightController.text,
+        'karat': _selectedKarat,
+        'genderCode': _selectedGender == 1 ? '1' : '2',
+        'images': imageFiles,
+        'gifting': _selectedGifting, // Add gifting selection
         'soulmate': _selectedSoulmate, // Add soulmate selection
         'occasion': _selectedOccasion, // Add occasion selection
+      });
 
+      print("Sending data to server...");
+      final response = await dio.post(
+        url,
+        data: formData,
+        options: Options(
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      if (response.data['status'] == 0) {
+        print("Product added successfully!");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Product added successfully!')),
+        );
+
+        Future.delayed(const Duration(seconds: 1), () {
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  AddProductPage(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+              transitionDuration:
+                  const Duration(milliseconds: 500), // Adjust transition speed
+            ),
+          );
         });
-
-        print("Sending data to server...");
-        final response = await dio.post(
-          url,
-          data: formData,
-          options: Options(
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              'Authorization': 'Bearer $token',
-            },
-          ),
-        );
-
-        // Correctly access the 'status' field in the response
-        if (response.data['status'] == 0) {
-          print("Product added successfully!");
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Product added successfully!')),
-          );
-
-          Future.delayed(const Duration(seconds: 1), () {
-            Navigator.pushReplacement(
-              context,
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    AddProductPage(),
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                  // Apply a fade transition
-                  return FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  );
-                },
-                transitionDuration: const Duration(
-                    milliseconds: 500), // Adjust transition speed
-              ),
-            );
-          });
-        } else {
-          print("Failed with status: ${response.data['message']}");
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed: ${response.data['message']}')),
-          );
-        }
-      } on DioException catch (e) {
-        print("DioException: ${e.response?.statusCode}");
+      } else {
+        print("Failed with status: ${response.data['message']}");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Server Error: ${e.response?.statusCode}')),
-        );
-      } catch (e) {
-        print("Unexpected error: $e");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Unexpected error occurred!')),
+          SnackBar(content: Text('Failed: ${response.data['message']}')),
         );
       }
+    } on DioException catch (e) {
+      print("DioException: ${e.response?.statusCode}");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Server Error: ${e.response?.statusCode}')),
+      );
+    } catch (e) {
+      print("Unexpected error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unexpected error occurred!')),
+      );
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
