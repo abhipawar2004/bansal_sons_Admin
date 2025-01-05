@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gehnaorg/features/add_product/presentation/pages/user_info.dart';
+import 'package:gehnaorg/widget/home_grid.dart';
 
 import '../bloc/login_bloc.dart';
 import 'profile_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     PersistentBottomSheetController? _bottomSheetController;
@@ -49,32 +55,7 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.home, size: 100, color: Colors.blueAccent),
-              const SizedBox(height: 20),
-              const Text(
-                'Welcome to the Home Screen!',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blueAccent,
-                ),
-              ),
-              const SizedBox(height: 40),
-              Text(
-                'Explore, shop, and manage your products with ease.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18, color: Colors.grey[700]),
-              ),
-            ],
-          ),
-        ),
-      ),
+      body: ProductGridPage(),
       bottomNavigationBar: BlocConsumer<LoginBloc, LoginState>(
         listener: (context, state) {
           if (state is LoginSuccess) {
@@ -188,7 +169,7 @@ class HomePage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => UserInfo(),
+                    builder: (context) => const UserInfo(),
                   ),
                 );
               }

@@ -53,6 +53,40 @@ class _UserInfoState extends State<UserInfo> {
     }
   }
 
+  Future<Map<String, dynamic>?> _fetchUserDetail(String userId) async {
+    final dio = Dio();
+    final String url = "https://api.gehnamall.com/auth/getUserDetail/$userId";
+
+    try {
+      final loginState = context.read<LoginBloc>().state;
+      if (loginState is LoginSuccess) {
+        final String token = loginState.login.token;
+
+        final response = await dio.get(
+          url,
+          options: Options(
+            headers: {
+              'Authorization':
+                  'Bearer $token', // Include the Authorization header
+              'Content-Type': 'application/json', // Include Content-Type header
+            },
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          return response.data; // Assuming this returns the user details
+        } else {
+          print("Error: ${response.statusCode} - ${response.statusMessage}");
+        }
+      } else {
+        print("User not logged in or invalid login state.");
+      }
+    } catch (e) {
+      print("Error fetching user detail: $e");
+    }
+    return null;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -74,9 +108,11 @@ class _UserInfoState extends State<UserInfo> {
                   itemBuilder: (context, index) {
                     final response = _userResponses[index];
                     final product = response['product'];
+                    final userId = response['userId'].toString();
 
                     return Card(
-                      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 16),
                       elevation: 5,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -131,25 +167,68 @@ class _UserInfoState extends State<UserInfo> {
                                 color: Colors.black87,
                               ),
                             ),
-                            if (product['imageUrls'] != null && product['imageUrls'].isNotEmpty)
-                              const SizedBox(height: 16),
-                            if (product['imageUrls'] != null && product['imageUrls'].isNotEmpty)
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: product['imageUrls'].map<Widget>((url) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(right: 8.0),
-                                      child: Image.network(
-                                        url,
-                                        height: 100,
-                                        width: 100,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
+                            const SizedBox(height: 8),
+                            ElevatedButton(
+                              onPressed: () async {
+                                final userDetails =
+                                    await _fetchUserDetail(userId);
+                                if (userDetails != null) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: Text(userDetails['name'] ??
+                                            "User Details"),
+                                        content: SingleChildScrollView(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              if (userDetails['email'] != null)
+                                                Text(
+                                                    "Email: ${userDetails['email']}"),
+                                              if (userDetails['dateOfBirth'] !=
+                                                  null)
+                                                Text(
+                                                    "DOB: ${userDetails['dateOfBirth']}"),
+                                              if (userDetails['spouseDob'] !=
+                                                  null)
+                                                Text(
+                                                    "Spouse Date: ${userDetails['spouseDob']}"),
+                                              if (userDetails['address'] !=
+                                                  null)
+                                                Text(
+                                                    "Address: ${userDetails['address']}"),
+                                              if (userDetails['pincode'] !=
+                                                  null)
+                                                Text(
+                                                    "Pincode: ${userDetails['pincode']}"),
+                                              if (userDetails['anniversary'] !=
+                                                  null)
+                                                Text(
+                                                    "Anniversary: ${userDetails['anniversary']}"),
+                                              if (userDetails['image'] != null)
+                                                Image.network(
+                                                    userDetails['image']),
+                                            ],
+                                          ),
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: const Text("Close"),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  print('userid not found');
+                                }
+                              },
+                              child: const Text("View More Detail"),
+                            ),
                           ],
                         ),
                       ),
