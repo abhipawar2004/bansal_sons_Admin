@@ -11,6 +11,7 @@ import 'package:gehnaorg/features/add_product/presentation/bloc/login_bloc.dart'
 import 'package:gehnaorg/features/add_product/presentation/bloc/subcategory_bloc/subcategory_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../core/constants/constants.dart';
 import '../../apis/gifting_service.dart';
 import '../../apis/occasions.dart';
 import '../../apis/soulmates_service.dart';
@@ -23,7 +24,6 @@ class AddProductPage extends StatefulWidget {
 }
 
 class _AddProductPageState extends State<AddProductPage> {
-
   final _formKey = GlobalKey<FormState>();
   final _productNameController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -149,127 +149,126 @@ class _AddProductPageState extends State<AddProductPage> {
   }
 
   Future<void> _submitProduct() async {
-  print("Submitting product...");
-  if (!_formKey.currentState!.validate()) {
-    print("Form validation failed.");
-    return;
-  }
+    print("Submitting product...");
+    if (!_formKey.currentState!.validate()) {
+      print("Form validation failed.");
+      return;
+    }
 
-  if (_selectedImages.isEmpty || _selectedImages.length > 7) {
-    print("Invalid image selection.");
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Select between 1 and 7 images.')),
-    );
-    return;
-  }
-
-  if (_selectedCategory == null) {
-    print("Category not selected.");
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Category is required!')),
-    );
-    return;
-  }
-
-  final dio = Dio();
-  final String categoryCode = _selectedCategory!.categoryCode.toString();
-  final String? subCategoryCode =
-      _selectedSubCategory?.subcategoryCode.toString();
-
-  final loginState = context.read<LoginBloc>().state;
-  if (loginState is LoginSuccess) {
-    final String identity = loginState.login.identity;
-    final String token = loginState.login.token;
-    print("Login successful! Identity: $identity, Token: $token");
-
-    // Dynamically generate the URL based on subcategory presence
-    final String url = subCategoryCode == null || subCategoryCode.isEmpty
-        ? 'https://api.gehnamall.com/admin/upload/Products?category=$categoryCode&wholeseller=$identity'
-        : 'https://api.gehnamall.com/admin/upload/Products?category=$categoryCode&subCategory=$subCategoryCode&wholeseller=$identity';
-    
-    print("URL for product upload: $url");
-
-    try {
-      List<MultipartFile> imageFiles = await Future.wait(_selectedImages.map(
-        (XFile image) async {
-          final bytes = await image.readAsBytes();
-          return MultipartFile.fromBytes(
-            bytes,
-            filename: image.name,
-            contentType: DioMediaType.parse('image/jpeg'),
-          );
-        },
-      ));
-
-      final formData = FormData.fromMap({
-        'productName': _productNameController.text,
-        'description': _descriptionController.text,
-        'wastage': _wastageController.text,
-        'weight': _weightController.text,
-        'karat': _selectedKarat,
-        'genderCode': _selectedGender == 1 ? '1' : '2',
-        'images': imageFiles,
-        'gifting': _selectedGifting, // Add gifting selection
-        'soulmate': _selectedSoulmate, // Add soulmate selection
-        'occasion': _selectedOccasion, // Add occasion selection
-      });
-
-      print("Sending data to server...");
-      final response = await dio.post(
-        url,
-        data: formData,
-        options: Options(
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': 'Bearer $token',
-          },
-        ),
+    if (_selectedImages.isEmpty || _selectedImages.length > 7) {
+      print("Invalid image selection.");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Select between 1 and 7 images.')),
       );
+      return;
+    }
 
-      if (response.data['status'] == 0) {
-        print("Product added successfully!");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Product added successfully!')),
+    if (_selectedCategory == null) {
+      print("Category not selected.");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Category is required!')),
+      );
+      return;
+    }
+
+    final dio = Dio();
+    final String categoryCode = _selectedCategory!.categoryCode.toString();
+    final String? subCategoryCode =
+        _selectedSubCategory?.subcategoryCode.toString();
+
+    final loginState = context.read<LoginBloc>().state;
+    if (loginState is LoginSuccess) {
+      final String identity = loginState.login.identity;
+      final String token = loginState.login.token;
+      print("Login successful! Identity: $identity, Token: $token");
+
+      // Dynamically generate the URL based on subcategory presence
+      final String url = subCategoryCode == null || subCategoryCode.isEmpty
+          ? 'https://api.gehnamall.com/admin/upload/Products?category=$categoryCode&wholeseller=$identity'
+          : 'https://api.gehnamall.com/admin/upload/Products?category=$categoryCode&subCategory=$subCategoryCode&wholeseller=$identity';
+
+      print("URL for product upload: $url");
+
+      try {
+        List<MultipartFile> imageFiles = await Future.wait(_selectedImages.map(
+          (XFile image) async {
+            final bytes = await image.readAsBytes();
+            return MultipartFile.fromBytes(
+              bytes,
+              filename: image.name,
+              contentType: DioMediaType.parse('image/jpeg'),
+            );
+          },
+        ));
+
+        final formData = FormData.fromMap({
+          'productName': _productNameController.text,
+          'description': _descriptionController.text,
+          'wastage': _wastageController.text,
+          'weight': _weightController.text,
+          'karat': _selectedKarat,
+          'genderCode': _selectedGender == 1 ? '1' : '2',
+          'images': imageFiles,
+          'gifting': _selectedGifting, // Add gifting selection
+          'soulmate': _selectedSoulmate, // Add soulmate selection
+          'occasion': _selectedOccasion, // Add occasion selection
+        });
+
+        print("Sending data to server...");
+        final response = await dio.post(
+          url,
+          data: formData,
+          options: Options(
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'Authorization': 'Bearer $token',
+            },
+          ),
         );
 
-        Future.delayed(const Duration(seconds: 1), () {
-          Navigator.pushReplacement(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  AddProductPage(),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: child,
-                );
-              },
-              transitionDuration:
-                  const Duration(milliseconds: 500), // Adjust transition speed
-            ),
+        if (response.data['status'] == 0) {
+          print("Product added successfully!");
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Product added successfully!')),
           );
-        });
-      } else {
-        print("Failed with status: ${response.data['message']}");
+
+          Future.delayed(const Duration(seconds: 1), () {
+            Navigator.pushReplacement(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    AddProductPage(),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  );
+                },
+                transitionDuration: const Duration(
+                    milliseconds: 500), // Adjust transition speed
+              ),
+            );
+          });
+        } else {
+          print("Failed with status: ${response.data['message']}");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed: ${response.data['message']}')),
+          );
+        }
+      } on DioException catch (e) {
+        print("DioException: ${e.response?.statusCode}");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed: ${response.data['message']}')),
+          SnackBar(content: Text('Server Error: ${e.response?.statusCode}')),
+        );
+      } catch (e) {
+        print("Unexpected error: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unexpected error occurred!')),
         );
       }
-    } on DioException catch (e) {
-      print("DioException: ${e.response?.statusCode}");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Server Error: ${e.response?.statusCode}')),
-      );
-    } catch (e) {
-      print("Unexpected error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Unexpected error occurred!')),
-      );
     }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -291,7 +290,16 @@ class _AddProductPageState extends State<AddProductPage> {
         ),
       ],
       child: Scaffold(
-        appBar: AppBar(title: const Text('Add Product')),
+        appBar: AppBar(
+          title: const Text(
+            'Add Product',
+            style: TextStyle(
+                fontSize: 24, fontWeight: FontWeight.bold, color: kWhite),
+          ),
+          centerTitle: true,
+          backgroundColor: kPrimary,
+          elevation: 5,
+        ),
         body: BlocBuilder<AddProductBloc, List<Category>>(
           builder: (context, categories) {
             if (categories.isEmpty) {
@@ -308,6 +316,9 @@ class _AddProductPageState extends State<AddProductPage> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: DropdownButtonFormField<Category>(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                        dropdownColor: kPrimary,
+                        style: TextStyle(color: kWhite, fontSize: 18),
                         isExpanded: true,
                         items: categories.map((category) {
                           return DropdownMenuItem(
@@ -345,7 +356,8 @@ class _AddProductPageState extends State<AddProductPage> {
                           }
                         },
                         decoration:
-                            const InputDecoration(labelText: 'Select Category'),
+                             InputDecoration(labelText: 'Select Category',border: OutlineInputBorder(),
+                             ),
                       ),
                     ),
 
@@ -359,6 +371,7 @@ class _AddProductPageState extends State<AddProductPage> {
                           children: [
                             Expanded(
                               child: RadioListTile<int>(
+                                activeColor: kPrimary,
                                 title: const Text('Male'),
                                 value: 1,
                                 groupValue: _selectedGender,
@@ -382,6 +395,7 @@ class _AddProductPageState extends State<AddProductPage> {
                             ),
                             Expanded(
                               child: RadioListTile<int>(
+                                activeColor: kPrimary,
                                 title: const Text('Female'),
                                 value: 2,
                                 groupValue: _selectedGender,
@@ -420,6 +434,8 @@ class _AddProductPageState extends State<AddProductPage> {
                           return Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: DropdownButtonFormField<SubCategory>(
+                               dropdownColor: kPrimary,
+                        style: TextStyle(color: kWhite, fontSize: 18),
                               isExpanded: true,
                               items: subCategories.map((subCategory) {
                                 return DropdownMenuItem(
@@ -435,7 +451,8 @@ class _AddProductPageState extends State<AddProductPage> {
                                 });
                               },
                               decoration: const InputDecoration(
-                                  labelText: 'Select SubCategory'),
+                                  labelText: 'Select SubCategory',
+                                  border: OutlineInputBorder()),
                             ),
                           );
                         }
@@ -449,7 +466,7 @@ class _AddProductPageState extends State<AddProductPage> {
                       child: TextFormField(
                         controller: _productNameController,
                         decoration:
-                            const InputDecoration(labelText: 'Product Name'),
+                            const InputDecoration(labelText: 'Product Name',border: OutlineInputBorder()),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter product name';
@@ -463,7 +480,8 @@ class _AddProductPageState extends State<AddProductPage> {
                       child: TextFormField(
                         controller: _descriptionController,
                         decoration:
-                            const InputDecoration(labelText: 'Description'),
+                            const InputDecoration(labelText: 'Description',
+                            border: OutlineInputBorder()),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter a description';
@@ -476,7 +494,8 @@ class _AddProductPageState extends State<AddProductPage> {
                       padding: const EdgeInsets.all(16.0),
                       child: TextFormField(
                         controller: _wastageController,
-                        decoration: const InputDecoration(labelText: 'Wastage'),
+                        decoration: const InputDecoration(labelText: 'Wastage',
+                        border: OutlineInputBorder()),
                         keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -491,7 +510,8 @@ class _AddProductPageState extends State<AddProductPage> {
                       child: TextFormField(
                         controller: _weightController,
                         decoration:
-                            const InputDecoration(labelText: 'Weight(g)'),
+                            const InputDecoration(labelText: 'Weight(g)',
+                            border: OutlineInputBorder()),
                         keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -509,10 +529,13 @@ class _AddProductPageState extends State<AddProductPage> {
                           : _giftingOptions.isEmpty
                               ? const Text('No gifting options available')
                               : DropdownButtonFormField<String>(
+                                 dropdownColor: kPrimary,
+                        style: TextStyle(color: kWhite, fontSize: 18),
                                   isExpanded: true,
                                   value: _selectedGifting,
                                   decoration: const InputDecoration(
-                                      labelText: 'Gifting'),
+                                      labelText: 'Gifting',
+                                      border: OutlineInputBorder()),
                                   onChanged: (value) {
                                     print('Gifting selected: $value');
                                     setState(() {
@@ -535,10 +558,12 @@ class _AddProductPageState extends State<AddProductPage> {
                           : _soulmateOptions.isEmpty
                               ? const Text('No soulmate options available')
                               : DropdownButtonFormField<String>(
+                                 dropdownColor: kPrimary,
+                        style: TextStyle(color: kWhite, fontSize: 18),
                                   isExpanded: true,
                                   value: _selectedSoulmate,
                                   decoration: const InputDecoration(
-                                      labelText: 'Soulmate'),
+                                      labelText: 'Soulmate',border: OutlineInputBorder()),
                                   onChanged: (value) {
                                     print('Soulmate selected: $value');
                                     setState(() {
@@ -561,10 +586,12 @@ class _AddProductPageState extends State<AddProductPage> {
                           : _occasionOptions.isEmpty
                               ? const Text('No occasion options available')
                               : DropdownButtonFormField<String>(
+                                 dropdownColor: kPrimary,
+                        style: TextStyle(color: kWhite, fontSize: 18),
                                   isExpanded: true,
                                   value: _selectedOccasion,
                                   decoration: const InputDecoration(
-                                      labelText: 'Occasion'),
+                                      labelText: 'Occasion',border: OutlineInputBorder()),
                                   onChanged: (value) {
                                     print('Occasion selected: $value');
                                     setState(() {
@@ -585,6 +612,8 @@ class _AddProductPageState extends State<AddProductPage> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: DropdownButtonFormField<String>(
+                         dropdownColor: kPrimary,
+                        style: TextStyle(color: kWhite, fontSize: 18),
                         isExpanded: true,
                         value: _selectedKarat,
                         onChanged: (value) {
@@ -600,22 +629,29 @@ class _AddProductPageState extends State<AddProductPage> {
                                 ))
                             .toList(),
                         decoration:
-                            const InputDecoration(labelText: 'Select Karat'),
+                            const InputDecoration(labelText: 'Select Karat',border: OutlineInputBorder()),
                       ),
                     ),
                     // Image Picker Buttons
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: kPrimary
+                            ),
                             onPressed: () => _pickImages(ImageSource.gallery),
-                            child: const Text('Pick Images'),
+                            child: const Text('Pick Images',style: TextStyle(color: kWhite),),
                           ),
                           const SizedBox(width: 10),
                           ElevatedButton(
+                             style: ElevatedButton.styleFrom(
+                              backgroundColor: kPrimary
+                            ),
                             onPressed: _captureImage,
-                            child: const Text('Capture Image'),
+                            child: const Text('Capture Image',style: TextStyle(color: kWhite),),
                           ),
                         ],
                       ),
@@ -653,8 +689,13 @@ class _AddProductPageState extends State<AddProductPage> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: ElevatedButton(
+                         style: ElevatedButton.styleFrom(
+                          
+                              backgroundColor: kPrimary,
+                              fixedSize: Size(450,55)
+                            ),
                         onPressed: _submitProduct,
-                        child: const Text('Submit'),
+                        child: const Text('Submit Product',style: TextStyle(color: kWhite,fontSize: 22),),
                       ),
                     ),
                   ],

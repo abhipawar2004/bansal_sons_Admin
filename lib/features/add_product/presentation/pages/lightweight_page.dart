@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../core/constants/constants.dart';
 import '../../apis/light_category.dart';
 import '../bloc/login_bloc.dart';
 
@@ -142,9 +143,16 @@ Future<void> _submitProduct() async {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Add Product'),
-      ),
+     appBar: AppBar(
+          title: const Text(
+            'Add Product',
+            style: TextStyle(
+                fontSize: 24, fontWeight: FontWeight.bold, color: kWhite),
+          ),
+          centerTitle: true,
+          backgroundColor: kPrimary,
+          elevation: 5,
+        ),
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: Form(
@@ -155,9 +163,12 @@ Future<void> _submitProduct() async {
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : DropdownButtonFormField<Map<String, dynamic>>(
+                     dropdownColor: kPrimary,
+                        style: TextStyle(color: kWhite, fontSize: 18),
                       isExpanded: true,
                       value: _selectedCategory,
                       decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
                         labelText: 'Select Category',
                       ),
                       items: _lightCategories
@@ -182,6 +193,7 @@ Future<void> _submitProduct() async {
               // Product Name
               TextFormField(
                 decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
                   labelText: 'Product Name',
                 ),
                 onSaved: (value) => _productName = value,
@@ -194,6 +206,7 @@ Future<void> _submitProduct() async {
               // Description
               TextFormField(
                 decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
                   labelText: 'Description',
                 ),
                 maxLines: 3,
@@ -204,6 +217,7 @@ Future<void> _submitProduct() async {
               // Wastage %
               TextFormField(
                 decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
                   labelText: 'Wastage %',
                 ),
                 keyboardType: TextInputType.number,
@@ -214,6 +228,7 @@ Future<void> _submitProduct() async {
               // Weight
               TextFormField(
                 decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
                   labelText: 'Weight (g) *',
                 ),
                 keyboardType: TextInputType.number,
@@ -235,7 +250,7 @@ Future<void> _submitProduct() async {
                   child: _imageFiles == null || _imageFiles!.isEmpty
                       ? const Center(
                           child:
-                              Icon(Icons.image, size: 50, color: Colors.grey),
+                              Icon(Icons.image, size: 50, color: kPrimary),
                         )
                       : ListView(
                           scrollDirection: Axis.horizontal,
@@ -259,6 +274,8 @@ Future<void> _submitProduct() async {
 
               // Karat Dropdown
               DropdownButtonFormField<String>(
+                 dropdownColor: kPrimary,
+                        style: TextStyle(color: kWhite, fontSize: 18),
                 isExpanded: true,
                 value: _selectedKarat,
                 onChanged: (value) {
@@ -272,14 +289,20 @@ Future<void> _submitProduct() async {
                           child: Text(karat),
                         ))
                     .toList(),
-                decoration: const InputDecoration(labelText: 'Select Karat'),
+                decoration: const InputDecoration(labelText: 'Select Karat',
+                border: OutlineInputBorder()),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 40),
 
               // Submit Button
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kPrimary,
+                  elevation: 4,
+                  fixedSize: Size(450, 55)
+                ),
                 onPressed: _submitProduct,
-                child: const Text('Add Product'),
+                child: const Text('Add Product', style: TextStyle(color: kWhite,fontSize: 20),),
               ),
             ],
           ),

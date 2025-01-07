@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gehnaorg/features/add_product/presentation/pages/user_info.dart';
 import 'package:gehnaorg/widget/home_grid.dart';
-
-import '../bloc/login_bloc.dart';
+import '../../../../core/constants/constants.dart';
 import 'profile_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,169 +12,141 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int _currentIndex = 0; // Track the selected index
+
   @override
   Widget build(BuildContext context) {
-    PersistentBottomSheetController? _bottomSheetController;
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Welcome to GehnaMall',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.blueAccent,
-        elevation: 5,
-        actions: [
-          BlocBuilder<LoginBloc, LoginState>(
-            builder: (context, state) {
-              if (state is LoginSuccess) {
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            ProfilePage(loginData: state.login),
-                      ),
-                    );
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CircleAvatar(
-                      backgroundColor: Colors.white,
-                      child: Icon(Icons.person, color: Colors.blueAccent),
-                    ),
-                  ),
-                );
-              } else {
-                return Container();
-              }
-            },
+    
+      body: _getBody(), // Dynamically load body based on selected index
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex, // Set the current index
+        selectedItemColor: kPrimary,
+        unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add),
+            label: 'Add',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list),
+            label: 'Orders',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+         
         ],
-      ),
-      body: ProductGridPage(),
-      bottomNavigationBar: BlocConsumer<LoginBloc, LoginState>(
-        listener: (context, state) {
-          if (state is LoginSuccess) {
-            // Handle navigation or other side effects on state change
-          }
-        },
-        builder: (context, state) {
-          return BottomNavigationBar(
-            selectedItemColor: Colors.blueAccent,
-            unselectedItemColor: Colors.grey,
-            backgroundColor: Colors.white,
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: 'Home',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.add, color: Colors.green),
-                label: 'Add',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.list),
-                label: 'Orders',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person),
-                label: 'Profile',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.category),
-                label: 'Others',
-              ),
-            ],
-            onTap: (index) {
-              // Close the bottom sheet if it is already open
-              if (_bottomSheetController != null) {
-                _bottomSheetController!.close();
-                _bottomSheetController = null;
-              }
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index; // Update the current index
+          });
 
-              if (index == 1) {
-                // Open bottom sheet
-                _bottomSheetController = showBottomSheet(
-                  context: context,
-                  builder: (context) {
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          leading: const Icon(Icons.add),
-                          title: const Text('Add'),
-                          onTap: () {
-                            Navigator.pop(context); // Close the bottom sheet
-                            Navigator.pushNamed(context, '/add_product');
-                            print('Add selected');
-                          },
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.attach_file),
-                          title: const Text('Lightweight'),
-                          onTap: () {
-                            Navigator.pop(context); // Close the bottom sheet
-                            Navigator.pushNamed(context, '/light_weight');
-                            print('Lightweight selected');
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                );
-              } else if (index == 3) {
-                // Navigate to Profile when the Profile tab is tapped
-                if (state is LoginSuccess) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProfilePage(
-                        loginData: state.login, // Pass the login data
+          if (index == 1) {
+            // Modal Bottom Sheet for Add
+            showModalBottomSheet(
+              backgroundColor: kPrimary,
+              context: context,
+              builder: (context) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.add, color: kWhite),
+                      title: const Text(
+                        'Add Product',
+                        style: TextStyle(color: kWhite),
                       ),
+                      onTap: () {
+                        Navigator.pop(context); // Close the bottom sheet
+                        Navigator.pushNamed(context, '/add_product');
+                      },
                     ),
-                  );
-                }
-              } else if (index == 4) {
-                _bottomSheetController = showBottomSheet(
-                  context: context,
-                  builder: (context) {
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          leading: const Icon(Icons.branding_watermark),
-                          title: const Text('Banner & Testinomial'),
-                          onTap: () {
-                            Navigator.pop(context); // Close the bottom sheet
-                            Navigator.pushNamed(context, '/others');
-                          },
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.price_change),
-                          title: const Text('Prices'),
-                          onTap: () {
-                            Navigator.pop(context); // Close the bottom sheet
-                            Navigator.pushNamed(context, '/prices');
-                          },
-                        ),
-                      ],
-                    );
-                  },
+                    ListTile(
+                      leading: const Icon(Icons.attach_file, color: kWhite),
+                      title: const Text(
+                        'Add Lightweight Product',
+                        style: TextStyle(color: kWhite),
+                      ),
+                      onTap: () {
+                        Navigator.pop(context); // Close the bottom sheet
+                        Navigator.pushNamed(context, '/light_weight');
+                      },
+                    ),
+                     ListTile(
+                      leading: const Icon(Icons.branding_watermark, color: kWhite),
+                      title: const Text(
+                        'Banner',
+                        style: TextStyle(color: kWhite),
+                      ),
+                      onTap: () {
+                        Navigator.pop(context); // Close the bottom sheet
+                        Navigator.pushNamed(context, '/others');
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.branding_watermark, color: kWhite),
+                      title: const Text(
+                        'Testimonial',
+                        style: TextStyle(color: kWhite),
+                      ),
+                      onTap: () {
+                        Navigator.pop(context); // Close the bottom sheet
+                        Navigator.pushNamed(context, '/testi');
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.price_change, color: kWhite),
+                      title: const Text(
+                        'Prices',
+                        style: TextStyle(color: kWhite),
+                      ),
+                      onTap: () {
+                        Navigator.pop(context); // Close the bottom sheet
+                        Navigator.pushNamed(context, '/prices');
+                      },
+                    ),
+                  ],
                 );
-              } else if (index == 2) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const UserInfo(),
-                  ),
+              },
+            );
+          } else if (index == 4) {
+            // Modal Bottom Sheet for Others
+            showModalBottomSheet(
+              backgroundColor: kPrimary,
+              context: context,
+              builder: (context) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                   
+                  ],
                 );
-              }
-            },
-          );
+              },
+            );
+          }
         },
       ),
     );
+  }
+
+  Widget _getBody() {
+    // Return the body widget based on the selected index
+    switch (_currentIndex) {
+      case 0:
+        return ProductGridPage(); // Home Page
+      case 2:
+        return const UserInfo(); // Orders Page
+      case 3:
+        return const ProfilePage(); // Profile Page
+      default:
+        return ProductGridPage(); // Default to Home Page
+    }
   }
 }

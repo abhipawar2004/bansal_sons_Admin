@@ -8,9 +8,10 @@ import 'package:gehnaorg/features/add_product/presentation/pages/add_product_pag
 import 'package:gehnaorg/features/add_product/presentation/pages/home_page.dart';
 import 'package:gehnaorg/features/add_product/presentation/pages/lightweight_page.dart';
 import 'package:gehnaorg/features/add_product/presentation/pages/login_page.dart';
-import 'package:gehnaorg/features/add_product/presentation/pages/other_page.dart';
+import 'package:gehnaorg/features/add_product/presentation/pages/banner_screen.dart';
 import 'package:gehnaorg/features/add_product/presentation/pages/prices_page.dart';
 import 'package:gehnaorg/features/add_product/presentation/pages/profile_page.dart';
+import 'package:gehnaorg/features/add_product/presentation/pages/testimonial_page.dart';
 
 import 'app/di_container.dart'; // Dependency Injection
 
@@ -65,8 +66,7 @@ class MyApp extends StatelessWidget {
               '/others':(context) =>  BannerAndTestimonialPage(),
               '/light_weight':(context) =>const LightweightPage(),
               '/prices':(context) =>const PricesPage(),
-
-              
+              '/testi':(context) =>const TestimonialPage(),   
             },
           );
         },

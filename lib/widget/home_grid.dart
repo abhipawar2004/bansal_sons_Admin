@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gehnaorg/core/constants/constants.dart';
 import 'package:gehnaorg/features/add_product/presentation/bloc/login_bloc.dart';
 
 class ProductGridPage extends StatefulWidget {
@@ -90,6 +91,19 @@ class _ProductGridPageState extends State<ProductGridPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: k2,
+       appBar: AppBar(
+        title: const Text(
+          'Welcome to GehnaMall',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: kWhite,
+          ),
+        ),
+        backgroundColor: kPrimary,
+        elevation: 5,
+      ),
       body: Column(
         children: [
           Expanded(

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gehnaorg/features/add_product/presentation/bloc/login_bloc.dart';
 
+import '../../../../core/constants/constants.dart';
+
 
 class LoginPage extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
@@ -10,33 +12,34 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Login',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.blueAccent,
-        elevation: 5,
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              Text('LOGIN',
+              style: TextStyle(
+                letterSpacing: 4,
+                color: kPrimary,
+                fontSize: 60
+              ),),
+                SizedBox(
+                  height: 40,
+                ),
               // Email TextField with Icon
               TextField(
                 controller: emailController,
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  prefixIcon: const Icon(Icons.email, color: Colors.blueAccent),
+                  prefixIcon: const Icon(Icons.email, color: kPrimary),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.blueAccent),
+                    borderSide: const BorderSide(color: kPrimary),
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
               // Password TextField with Icon
               TextField(
@@ -44,10 +47,10 @@ class LoginPage extends StatelessWidget {
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Password',
-                  prefixIcon: const Icon(Icons.lock, color: Colors.blueAccent),
+                  prefixIcon: const Icon(Icons.lock, color: kPrimary),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.blueAccent),
+                    borderSide: const BorderSide(color: kPrimary),
                   ),
                 ),
               ),
@@ -69,7 +72,7 @@ class LoginPage extends StatelessWidget {
                                 );
                           },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
+                      backgroundColor: kPrimary,
                       padding:
                           const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                       shape: RoundedRectangleBorder(
@@ -85,6 +88,7 @@ class LoginPage extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
+                              color: kWhite
                             ),
                           ),
                   );

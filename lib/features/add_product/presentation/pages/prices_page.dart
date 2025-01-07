@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
+import '../../../../core/constants/constants.dart';
 import '../../apis/prices_api.dart';
 import '../../data/models/prices.dart';
 import '../bloc/login_bloc.dart';
@@ -115,9 +116,15 @@ Future<String> _getAuthToken() async {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+    backgroundColor: k2,
       appBar: AppBar(
-        title: const Text('Prices'),
-        centerTitle: true,
+        title: const Text(
+          'Prices',
+          style: TextStyle(
+              fontSize: 24, fontWeight: FontWeight.bold, color: kWhite),
+        ),
+        backgroundColor: kPrimary,
+        elevation: 5,
       ),
       body: FutureBuilder<List<MetalPrice>>(
         future: _prices,
@@ -204,7 +211,7 @@ Future<String> _getAuthToken() async {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
-                          _isChanged ? Colors.lightGreen : Colors.grey,
+                          _isChanged ? Colors.lightGreen : Colors.red,
                     ),
                     onPressed: _isChanged
                         ? () {
@@ -214,7 +221,7 @@ Future<String> _getAuthToken() async {
                     child: const Text(
                       'Submit New Price',
                       style: TextStyle(
-                        color: Colors.red,
+                        color: kWhite,
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
                       ),
