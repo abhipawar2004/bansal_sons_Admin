@@ -116,21 +116,7 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             );
-          } else if (index == 4) {
-            // Modal Bottom Sheet for Others
-            showModalBottomSheet(
-              backgroundColor: kPrimary,
-              context: context,
-              builder: (context) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                   
-                  ],
-                );
-              },
-            );
-          }
+          } 
         },
       ),
     );
@@ -144,7 +130,7 @@ class _HomePageState extends State<HomePage> {
       case 2:
         return const UserInfo(); // Orders Page
       case 3:
-        return const ProfilePage(); // Profile Page
+        return  ProfilePage(); // Profile Page
       default:
         return ProductGridPage(); // Default to Home Page
     }

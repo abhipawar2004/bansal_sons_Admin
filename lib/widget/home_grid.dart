@@ -26,7 +26,6 @@ class _ProductGridPageState extends State<ProductGridPage> {
   void initState() {
     super.initState();
     fetchProducts();
-    fetchCategories();
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
@@ -102,35 +101,6 @@ Future<void> fetchProducts() async {
 }
 
 
- Future<void> fetchCategories() async {
-  const String url = "http://api.gehnamall.com/api/categories?wholeseller=BANSAL";
-
-  final dio = Dio();
-  try {
-    final response = await dio.get(url);
-    if (response.statusCode == 200) {
-      setState(() {
-        // Extracting categoryName from response correctly
-        categories = List<String>.from(response.data.map((category) => category['categoryName'] ?? ''));
-      });
-    } else {
-      print("Failed to fetch categories");
-    }
-  } catch (e) {
-    print("Error fetching categories: $e");
-  }
-}
-
-
- void applyFilter(String category) {
-  setState(() {
-    selectedCategory = category;
-    products.clear();  // Reset the products list to show only the filtered ones
-    page = 1;  // Start with the first page
-    hasMore = true;  // Ensure there are more products to fetch
-  });
-  fetchProducts();  // Fetch the products for the selected category
-}
 
 
   @override
@@ -151,36 +121,6 @@ Future<void> fetchProducts() async {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Total Products: $totalProducts',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                  ),
-                ),
-                PopupMenuButton<String>(
-                  icon: Icon(Icons.more_vert),
-                  onSelected: (value) {
-                    applyFilter(value);
-                  },
-                  itemBuilder: (context) {
-                    return categories.map((category) {
-                      return PopupMenuItem(
-                        value: category,
-                        child: Text(category),
-                      );
-                    }).toList();
-                  },
-                ),
-              ],
-            ),
-          ),
           Expanded(
             child: GridView.builder(
               controller: _scrollController,

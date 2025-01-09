@@ -31,16 +31,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.loginData == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Profile'),
-          backgroundColor: Colors.blueAccent,
-        ),
-        body: const Center(child: Text('No user data available')),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
