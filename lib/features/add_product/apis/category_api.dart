@@ -11,7 +11,7 @@ class CategoryApi {
   Future<List<Category>> getCategories(String wholeseller) async {
     try {
       final response = await _dio.get(
-        'http://3.110.34.172:8080/api/categories',
+        'http://api.gehnamall.com/api/categories',
         queryParameters: {'wholeseller': wholeseller},
       );
       if (response.statusCode == 200) {

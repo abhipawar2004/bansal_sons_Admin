@@ -20,9 +20,9 @@ class LoginPage extends StatelessWidget {
             children: [
               Text('LOGIN',
               style: TextStyle(
-                letterSpacing: 4,
+                letterSpacing: 2,
                 color: kPrimary,
-                fontSize: 60
+                fontSize: 45
               ),),
                 SizedBox(
                   height: 40,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gehnaorg/core/constants/constants.dart';
 import 'package:gehnaorg/features/add_product/presentation/bloc/login_bloc.dart';
 
@@ -11,10 +12,13 @@ class ProductGridPage extends StatefulWidget {
 
 class _ProductGridPageState extends State<ProductGridPage> {
   List<dynamic> products = [];
+  List<String> categories = [];
+  String? selectedCategory;
   bool isLoading = false;
   bool hasMore = true;
   int page = 1;
   final int size = 10;
+  int totalProducts = 0;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -22,8 +26,8 @@ class _ProductGridPageState extends State<ProductGridPage> {
   void initState() {
     super.initState();
     fetchProducts();
+    fetchCategories();
 
-    // Scroll listener for pagination
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
               _scrollController.position.maxScrollExtent &&
@@ -34,69 +38,101 @@ class _ProductGridPageState extends State<ProductGridPage> {
     });
   }
 
-  Future<void> fetchProducts() async {
-    setState(() {
-      isLoading = true;
-    });
+Future<void> fetchProducts() async {
+  setState(() {
+    isLoading = true;
+  });
 
-    final String url =
-        "https://api.gehnamall.com/admin/products/latest?wholeseller=BANSAL&page=$page&size=$size";
+  String url =
+      "https://api.gehnamall.com/admin/products/latest?wholeseller=BANSAL&page=$page&size=$size";
 
-    final dio = Dio();
-    final loginState = context.read<LoginBloc>().state;
+  // Adding category filter if selected
+  if (selectedCategory != null) {
+    url += "&category=$selectedCategory";
+  }
 
-    if (loginState is LoginSuccess) {
-      final String token = loginState.login.token;
+  final dio = Dio();
+  final loginState = context.read<LoginBloc>().state;
 
-      try {
-        final response = await dio.get(
-          url,
-          options: Options(
-            headers: {
-              'Authorization': 'Bearer $token',
-            },
-          ),
-        );
+  if (loginState is LoginSuccess) {
+    final String token = loginState.login.token;
 
-        if (response.data['status'] == 0) {
-          final List<dynamic> newProducts = response.data['products'];
+    try {
+      final response = await dio.get(
+        url,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
 
-          setState(() {
-            products.addAll(newProducts);
-            page++;
-            hasMore = newProducts.length == size; 
-          });
-        } else {
-          print("Failed to fetch products: ${response.data['message']}");
-        }
-      } catch (e) {
-        print("Error: $e");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error fetching products')),
-        );
+      if (response.data['status'] == 0) {
+        final List<dynamic> newProducts = response.data['products'];
+        final int fetchedTotalProducts = response.data['totalProducts'];
+
+        setState(() {
+          products.addAll(newProducts);  // Add fetched products to the list
+          page++;
+          hasMore = newProducts.length == size;  // Check if there are more products
+          totalProducts = fetchedTotalProducts;  // Update the total count of products
+        });
+      } else {
+        print("Failed to fetch products: ${response.data['message']}");
       }
+    } catch (e) {
+      print("Error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching products')),
+      );
     }
-
-    setState(() {
-      isLoading = false;
-    });
   }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
+  setState(() {
+    isLoading = false;  // End loading state
+  });
+}
+
+ Future<void> fetchCategories() async {
+  const String url = "http://api.gehnamall.com/api/categories?wholeseller=BANSAL";
+
+  final dio = Dio();
+  try {
+    final response = await dio.get(url);
+    if (response.statusCode == 200) {
+      setState(() {
+        // Extracting categoryName from response correctly
+        categories = List<String>.from(response.data.map((category) => category['categoryName'] ?? ''));
+      });
+    } else {
+      print("Failed to fetch categories");
+    }
+  } catch (e) {
+    print("Error fetching categories: $e");
   }
+}
+
+
+ void applyFilter(String category) {
+  setState(() {
+    selectedCategory = category;
+    products.clear();  // Reset the products list to show only the filtered ones
+    page = 1;  // Start with the first page
+    hasMore = true;  // Ensure there are more products to fetch
+  });
+  fetchProducts();  // Fetch the products for the selected category
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: k2,
-       appBar: AppBar(
-        title: const Text(
+      appBar: AppBar(
+        title: Text(
           'Welcome to GehnaMall',
           style: TextStyle(
-            fontSize: 24,
+            fontSize: 16.sp,
             fontWeight: FontWeight.bold,
             color: kWhite,
           ),
@@ -106,6 +142,36 @@ class _ProductGridPageState extends State<ProductGridPage> {
       ),
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Total Products: $totalProducts',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black,
+                  ),
+                ),
+                PopupMenuButton<String>(
+                  icon: Icon(Icons.more_vert),
+                  onSelected: (value) {
+                    applyFilter(value);
+                  },
+                  itemBuilder: (context) {
+                    return categories.map((category) {
+                      return PopupMenuItem(
+                        value: category,
+                        child: Text(category),
+                      );
+                    }).toList();
+                  },
+                ),
+              ],
+            ),
+          ),
           Expanded(
             child: GridView.builder(
               controller: _scrollController,
