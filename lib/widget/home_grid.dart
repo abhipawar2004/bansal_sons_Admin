@@ -72,7 +72,15 @@ Future<void> fetchProducts() async {
         final int fetchedTotalProducts = response.data['totalProducts'];
 
         setState(() {
-          products.addAll(newProducts);  // Add fetched products to the list
+          // Filter products by category if selectedCategory is not null
+          if (selectedCategory != null) {
+            // Only add products that match the selected category
+            products.addAll(newProducts.where((product) =>
+                product['categoryName'] == selectedCategory));
+          } else {
+            // If no category is selected, add all products
+            products.addAll(newProducts);
+          }
           page++;
           hasMore = newProducts.length == size;  // Check if there are more products
           totalProducts = fetchedTotalProducts;  // Update the total count of products
@@ -92,6 +100,7 @@ Future<void> fetchProducts() async {
     isLoading = false;  // End loading state
   });
 }
+
 
  Future<void> fetchCategories() async {
   const String url = "http://api.gehnamall.com/api/categories?wholeseller=BANSAL";

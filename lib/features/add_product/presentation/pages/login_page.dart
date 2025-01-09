@@ -22,7 +22,7 @@ class LoginPage extends StatelessWidget {
               style: TextStyle(
                 letterSpacing: 2,
                 color: kPrimary,
-                fontSize: 45
+                fontSize: 35,
               ),),
                 SizedBox(
                   height: 40,
