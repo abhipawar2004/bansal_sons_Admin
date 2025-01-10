@@ -60,7 +60,7 @@ class _HomePageState extends State<HomePage> {
                     ListTile(
                       leading: const Icon(Icons.add, color: kWhite),
                       title: const Text(
-                        'Add Product',
+                        'Add Products',
                         style: TextStyle(color: kWhite),
                       ),
                       onTap: () {
@@ -69,9 +69,9 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                     ListTile(
-                      leading: const Icon(Icons.attach_file, color: kWhite),
+                      leading: const Icon(Icons.add_card, color: kWhite),
                       title: const Text(
-                        'Add Lightweight Product',
+                        'Add Lightweight Products',
                         style: TextStyle(color: kWhite),
                       ),
                       onTap: () {
@@ -80,7 +80,7 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                      ListTile(
-                      leading: const Icon(Icons.branding_watermark, color: kWhite),
+                      leading: const Icon(Icons.branding_watermark_rounded, color: kWhite),
                       title: const Text(
                         'Banner',
                         style: TextStyle(color: kWhite),
@@ -91,7 +91,7 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                     ListTile(
-                      leading: const Icon(Icons.branding_watermark, color: kWhite),
+                      leading: const Icon(Icons.text_snippet, color: kWhite),
                       title: const Text(
                         'Testimonial',
                         style: TextStyle(color: kWhite),

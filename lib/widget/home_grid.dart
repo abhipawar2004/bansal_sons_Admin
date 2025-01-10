@@ -37,77 +37,77 @@ class _ProductGridPageState extends State<ProductGridPage> {
     });
   }
 
-Future<void> fetchProducts() async {
-  setState(() {
-    isLoading = true;
-  });
+  Future<void> fetchProducts() async {
+    setState(() {
+      isLoading = true;
+    });
 
-  String url =
-      "https://api.gehnamall.com/admin/products/latest?wholeseller=BANSAL&page=$page&size=$size";
+    String url =
+        "https://api.gehnamall.com/admin/products/latest?wholeseller=BANSAL&page=$page&size=$size";
 
-  // Adding category filter if selected
-  if (selectedCategory != null) {
-    url += "&category=$selectedCategory";
-  }
-
-  final dio = Dio();
-  final loginState = context.read<LoginBloc>().state;
-
-  if (loginState is LoginSuccess) {
-    final String token = loginState.login.token;
-
-    try {
-      final response = await dio.get(
-        url,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
-
-      if (response.data['status'] == 0) {
-        final List<dynamic> newProducts = response.data['products'];
-        final int fetchedTotalProducts = response.data['totalProducts'];
-
-        setState(() {
-          // Filter products by category if selectedCategory is not null
-          if (selectedCategory != null) {
-            // Only add products that match the selected category
-            products.addAll(newProducts.where((product) =>
-                product['categoryName'] == selectedCategory));
-          } else {
-            // If no category is selected, add all products
-            products.addAll(newProducts);
-          }
-          page++;
-          hasMore = newProducts.length == size;  // Check if there are more products
-          totalProducts = fetchedTotalProducts;  // Update the total count of products
-        });
-      } else {
-        print("Failed to fetch products: ${response.data['message']}");
-      }
-    } catch (e) {
-      print("Error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching products')),
-      );
+    // Adding category filter if selected
+    if (selectedCategory != null) {
+      url += "&category=$selectedCategory";
     }
+
+    final dio = Dio();
+    final loginState = context.read<LoginBloc>().state;
+
+    if (loginState is LoginSuccess) {
+      final String token = loginState.login.token;
+
+      try {
+        final response = await dio.get(
+          url,
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $token',
+            },
+          ),
+        );
+
+        if (response.data['status'] == 0) {
+          final List<dynamic> newProducts = response.data['products'];
+          final int fetchedTotalProducts = response.data['totalProducts'];
+
+          setState(() {
+            // Filter products by category if selectedCategory is not null
+            if (selectedCategory != null) {
+              // Only add products that match the selected category
+              products.addAll(newProducts.where(
+                  (product) => product['categoryName'] == selectedCategory));
+            } else {
+              // If no category is selected, add all products
+              products.addAll(newProducts);
+            }
+            page++;
+            hasMore =
+                newProducts.length == size; // Check if there are more products
+            totalProducts =
+                fetchedTotalProducts; // Update the total count of products
+          });
+        } else {
+          print("Failed to fetch products: ${response.data['message']}");
+        }
+      } catch (e) {
+        print("Error: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error fetching products')),
+        );
+      }
+    }
+
+    setState(() {
+      isLoading = false; // End loading state
+    });
   }
-
-  setState(() {
-    isLoading = false;  // End loading state
-  });
-}
-
-
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: k2,
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
           'Welcome to GehnaMall',
           style: TextStyle(
@@ -198,7 +198,6 @@ Future<void> fetchProducts() async {
     fetchProducts();
   }
 }
-
 
 class ProductDetailPage extends StatelessWidget {
   final Map<String, dynamic> product;

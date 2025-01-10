@@ -1,8 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gehnaorg/features/add_product/data/models/login.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../../../../core/constants/constants.dart';
 
 class ProfilePage extends StatefulWidget {
   final Login? loginData;
@@ -32,15 +35,22 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: k2,
       appBar: AppBar(
         centerTitle: true,
-        title: const Text(
+        title:  Text(
           'Profile',
-          style: TextStyle(fontSize: 25),
+           style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.bold,
+            color: kWhite,
+          ),
         ),
+         backgroundColor: kPrimary,
+        elevation: 5,
         actions: [
           IconButton(
-            icon: Icon(isEditing ? Icons.check : Icons.edit),
+            icon: Icon(isEditing ? Icons.check : Icons.edit,color: kWhite,),
             onPressed: () {
               setState(() {
                 isEditing = !isEditing; // Toggle editing state
@@ -120,10 +130,15 @@ class _ProfilePageState extends State<ProfilePage> {
                     height: 50,
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kPrimary
+                    )
+                      ,onPressed: () {
                         // Handle logout
                       },
-                      child: const Text('Logout'),
+                      child: const Text('Logout',style: TextStyle(
+                        color: kWhite
+                      ),),
                     ),
                   ),
                 ),
