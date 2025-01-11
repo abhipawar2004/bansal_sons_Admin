@@ -1,4 +1,4 @@
-package com.example.gehnaorg
+package com.admin.wholesaler
 
 import io.flutter.embedding.android.FlutterActivity
 
