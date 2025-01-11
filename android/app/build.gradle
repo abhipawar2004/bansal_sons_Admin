@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.admin.jeweller"
+    namespace = "com.admin.wholesaler"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
