@@ -1,7 +1,7 @@
 name: gehnaorg
 description: "A new Flutter project."
 
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none' 
 
 
 version: 1.0.0+1
@@ -14,9 +14,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   dio: ^5.7.0
   flutter_bloc: ^8.1.6
@@ -33,7 +30,7 @@ dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/images/protection.png" # Path to your icon
+  image_path: "assets/images/logo.png" # Path to your icon
 
 
 
@@ -44,10 +41,6 @@ dev_dependencies:
 
   flutter_lints: ^4.0.0
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter packages.
 flutter:
 
   # The following line ensures that the Material Icons font is
